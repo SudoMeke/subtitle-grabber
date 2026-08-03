@@ -51,6 +51,13 @@ Saved to: /home/you/Downloads/subtitles/Some Video Title.en.srt
 
 Press Enter at the language prompt to accept the suggested (first-listed) language, or type any code shown in the list. Press Enter at the folder prompt to save to `Downloads/subtitles`, or type any other folder path (it will be created if it doesn't exist).
 
+## Running the tests
+
+```
+python -m unittest discover -s tests
+```
+(On macOS/Linux you may need `python3` instead of `python`.)
+
 ## License
 
 MIT — see [LICENSE](LICENSE).
