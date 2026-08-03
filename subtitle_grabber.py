@@ -1,9 +1,7 @@
-#!/usr/bin/env python3
-"""Download YouTube subtitles from the terminal on Windows, macOS, or Linux.
+"""Backend for downloading YouTube subtitles, with no GUI/TUI imports.
 
-No account, no browser, no video download: paste a YouTube URL, pick a
-subtitle language, choose (or accept the default) destination folder, and
-get a .srt file there.
+Fetches available subtitles for a URL and downloads one as .srt. Used by
+tui.py, the program's interface.
 """
 
 import json
@@ -15,9 +13,8 @@ DEFAULT_SUBS_DIR = Path.home() / "Downloads" / "subtitles"
 
 # Run yt-dlp as "python -m yt_dlp" instead of calling the "yt-dlp" command
 # directly. This uses the exact same Python interpreter that's already
-# running this script, so it works right after "pip install -r
-# requirements.txt" even if the yt-dlp command itself isn't on PATH yet
-# (a common issue on Windows).
+# running this script, so it works right after installing this package even
+# if the yt-dlp command itself isn't on PATH yet (a common issue on Windows).
 YTDLP_CMD = [sys.executable, "-m", "yt_dlp"]
 
 
@@ -98,68 +95,5 @@ def friendly_error(error_text):
     if "sign in" in text or "confirm your age" in text:
         return "That video requires sign-in and can't be downloaded here."
     if "no module named" in text or "not found" in text:
-        return "yt-dlp isn't installed. Run: pip install -r requirements.txt"
+        return "yt-dlp isn't installed correctly. Try reinstalling: pip install ."
     return "Couldn't read that video. Double-check the URL and try again."
-
-
-def prompt_and_download():
-    url = input("YouTube URL: ").strip()
-    if not is_youtube_url(url):
-        print("That doesn't look like a YouTube URL.")
-        return None
-
-    print("Looking up available subtitles...")
-    try:
-        info = get_subtitle_options(url)
-    except RuntimeError as exc:
-        print(friendly_error(str(exc)))
-        return None
-
-    if not info["languages"]:
-        print(f'"{info["title"]}" has no subtitles available.')
-        return None
-
-    print(f'\n"{info["title"]}"')
-    print("Available subtitles:")
-    codes = sorted(info["languages"])
-    for code in codes:
-        details = info["languages"][code]
-        kind = "auto-generated" if details["auto"] else "official"
-        print(f"  {code} - {details['name']} ({kind})")
-
-    default_code = codes[0]
-    choice = input(f"\nLanguage code to download [{default_code}]: ").strip() or default_code
-    if choice not in info["languages"]:
-        print(f"'{choice}' isn't in the list above.")
-        return None
-
-    dest = input(f"Save to [{DEFAULT_SUBS_DIR}]: ").strip()
-    out_dir = Path(dest).expanduser() if dest else DEFAULT_SUBS_DIR
-
-    print("Downloading...")
-    try:
-        path = download_subtitle(url, choice, info["languages"][choice]["auto"], out_dir)
-    except RuntimeError as exc:
-        print(friendly_error(str(exc)))
-        return None
-    except OSError as exc:
-        print(f"Couldn't use that folder: {exc.strerror or exc}")
-        return None
-
-    if path is None:
-        print("Download finished, but the file couldn't be found afterwards.")
-        return None
-
-    print(f"Saved to: {path}")
-    return path
-
-
-def run():
-    try:
-        prompt_and_download()
-    except KeyboardInterrupt:
-        print("\nCancelled.")
-
-
-if __name__ == "__main__":
-    sys.exit(run())
