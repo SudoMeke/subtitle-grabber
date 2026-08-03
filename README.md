@@ -1,5 +1,7 @@
 # subtitle-grabber
 
+[![Tests](https://github.com/SudoMeke/subtitle-grabber/actions/workflows/tests.yml/badge.svg)](https://github.com/SudoMeke/subtitle-grabber/actions/workflows/tests.yml)
+
 Download YouTube subtitles from the terminal — no browser extensions, no video download, no ads. Works on Windows, macOS, and Linux.
 
 Paste a YouTube link, pick a subtitle language from the list it shows you, choose where to save it (or just press Enter for the default), and get a `.srt` file there.
