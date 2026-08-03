@@ -2,8 +2,8 @@
 """Download YouTube subtitles from the terminal on Windows, macOS, or Linux.
 
 No account, no browser, no video download: paste a YouTube URL, pick a
-subtitle language, and get a .srt file in the "subtitles" folder next to
-this script.
+subtitle language, choose (or accept the default) destination folder, and
+get a .srt file there.
 """
 
 import json
@@ -11,7 +11,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-SUBS_DIR = Path.cwd() / "subtitles"
+DEFAULT_SUBS_DIR = Path.home() / "Downloads" / "subtitles"
 
 # Run yt-dlp as "python -m yt_dlp" instead of calling the "yt-dlp" command
 # directly. This uses the exact same Python interpreter that's already
@@ -61,7 +61,7 @@ def get_subtitle_options(url):
     return {"title": info.get("title", "Unknown title"), "languages": languages}
 
 
-def download_subtitle(url, lang_code, auto, out_dir=SUBS_DIR):
+def download_subtitle(url, lang_code, auto, out_dir=DEFAULT_SUBS_DIR):
     """Download one subtitle track as .srt and return the written file's path."""
     out_dir.mkdir(parents=True, exist_ok=True)
     before = set(out_dir.glob("*.srt"))
@@ -133,11 +133,17 @@ def prompt_and_download():
         print(f"'{choice}' isn't in the list above.")
         return None
 
+    dest = input(f"Save to [{DEFAULT_SUBS_DIR}]: ").strip()
+    out_dir = Path(dest).expanduser() if dest else DEFAULT_SUBS_DIR
+
     print("Downloading...")
     try:
-        path = download_subtitle(url, choice, info["languages"][choice]["auto"])
+        path = download_subtitle(url, choice, info["languages"][choice]["auto"], out_dir)
     except RuntimeError as exc:
         print(friendly_error(str(exc)))
+        return None
+    except OSError as exc:
+        print(f"Couldn't use that folder: {exc.strerror or exc}")
         return None
 
     if path is None:

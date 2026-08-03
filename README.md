@@ -2,7 +2,7 @@
 
 Download YouTube subtitles from the terminal — no browser extensions, no video download, no ads. Works on Windows, macOS, and Linux.
 
-Paste a YouTube link, pick a subtitle language from the list it shows you, and get a `.srt` file in a `subtitles` folder next to the program.
+Paste a YouTube link, pick a subtitle language from the list it shows you, choose where to save it (or just press Enter for the default), and get a `.srt` file there.
 
 ## Requirements
 
@@ -44,11 +44,12 @@ Available subtitles:
   es - Spanish (auto-generated)
 
 Language code to download [en]:
+Save to [/home/you/Downloads/subtitles]:
 Downloading...
-Saved to: subtitles/Some Video Title.en.srt
+Saved to: /home/you/Downloads/subtitles/Some Video Title.en.srt
 ```
 
-Press Enter at the language prompt to accept the suggested (first-listed) language, or type any code shown in the list.
+Press Enter at the language prompt to accept the suggested (first-listed) language, or type any code shown in the list. Press Enter at the folder prompt to save to `Downloads/subtitles`, or type any other folder path (it will be created if it doesn't exist).
 
 ## License
 
