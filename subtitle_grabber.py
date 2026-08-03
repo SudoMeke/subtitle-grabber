@@ -6,12 +6,19 @@ subtitle language, and get a .srt file in the "subtitles" folder next to
 this script.
 """
 
+import json
+import subprocess
 import sys
 from pathlib import Path
 
-import yt_dlp
-
 SUBS_DIR = Path.cwd() / "subtitles"
+
+# Run yt-dlp as "python -m yt_dlp" instead of calling the "yt-dlp" command
+# directly. This uses the exact same Python interpreter that's already
+# running this script, so it works right after "pip install -r
+# requirements.txt" even if the yt-dlp command itself isn't on PATH yet
+# (a common issue on Windows).
+YTDLP_CMD = [sys.executable, "-m", "yt_dlp"]
 
 
 def is_youtube_url(url):
@@ -25,12 +32,22 @@ def _is_real_caption(fmt):
     return "tlang=" not in fmt.get("url", "")
 
 
+def _run(args):
+    return subprocess.run(YTDLP_CMD + args, capture_output=True, text=True)
+
+
+def _last_error_line(result):
+    lines = [line for line in result.stderr.splitlines() if line.strip()]
+    return lines[-1] if lines else "yt-dlp failed for an unknown reason."
+
+
 def get_subtitle_options(url):
     """Return {"title": str, "languages": {code: {"name": str, "auto": bool}}}."""
-    ydl_opts = {"skip_download": True, "quiet": True, "no_warnings": True}
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        info = ydl.extract_info(url, download=False)
+    result = _run(["--dump-json", "--skip-download", url])
+    if result.returncode != 0:
+        raise RuntimeError(_last_error_line(result))
 
+    info = json.loads(result.stdout)
     languages = {}
     for code, formats in (info.get("subtitles") or {}).items():
         languages[code] = {"name": formats[0].get("name", code), "auto": False}
@@ -47,19 +64,26 @@ def get_subtitle_options(url):
 def download_subtitle(url, lang_code, auto, out_dir=SUBS_DIR):
     """Download one subtitle track as .srt and return the written file's path."""
     out_dir.mkdir(parents=True, exist_ok=True)
-    ydl_opts = {
-        "skip_download": True,
-        "quiet": True,
-        "no_warnings": True,
-        "noprogress": True,
-        "writesubtitles": not auto,
-        "writeautomaticsubtitles": auto,
-        "subtitleslangs": [lang_code],
-        "subtitlesformat": "srt",
-        "outtmpl": str(out_dir / "%(title)s.%(ext)s"),
-    }
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        ydl.download([url])
+    before = set(out_dir.glob("*.srt"))
+
+    result = _run([
+        "--write-auto-subs" if auto else "--write-subs",
+        "--sub-langs", lang_code,
+        "--sub-format", "srt",
+        "--skip-download",
+        "-o", str(out_dir / "%(title)s.%(ext)s"),
+        url,
+    ])
+    if result.returncode != 0:
+        raise RuntimeError(_last_error_line(result))
+
+    # yt-dlp sanitizes the video title for the filesystem, so the exact
+    # written filename can't be predicted from info["title"]. Detect it via
+    # a before/after diff instead, falling back to a lang-code glob in case
+    # this re-download overwrote an existing file rather than creating one.
+    new_files = set(out_dir.glob("*.srt")) - before
+    if new_files:
+        return max(new_files, key=lambda p: p.stat().st_mtime)
 
     matches = sorted(out_dir.glob(f"*.{lang_code}.srt"), key=lambda p: p.stat().st_mtime)
     return matches[-1] if matches else None
@@ -73,6 +97,8 @@ def friendly_error(error_text):
         return "That video is unavailable (deleted or region-blocked)."
     if "sign in" in text or "confirm your age" in text:
         return "That video requires sign-in and can't be downloaded here."
+    if "no module named" in text or "not found" in text:
+        return "yt-dlp isn't installed. Run: pip install -r requirements.txt"
     return "Couldn't read that video. Double-check the URL and try again."
 
 
@@ -85,7 +111,7 @@ def prompt_and_download():
     print("Looking up available subtitles...")
     try:
         info = get_subtitle_options(url)
-    except yt_dlp.utils.DownloadError as exc:
+    except RuntimeError as exc:
         print(friendly_error(str(exc)))
         return None
 
@@ -110,7 +136,7 @@ def prompt_and_download():
     print("Downloading...")
     try:
         path = download_subtitle(url, choice, info["languages"][choice]["auto"])
-    except yt_dlp.utils.DownloadError as exc:
+    except RuntimeError as exc:
         print(friendly_error(str(exc)))
         return None
 
