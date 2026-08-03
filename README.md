@@ -21,11 +21,21 @@ That's it — no `ffmpeg`, no extra system tools. This tool only downloads subti
    - **Windows**: open the folder in File Explorer, then type `cmd` in the address bar and press Enter.
    - **macOS**: right-click the folder → "New Terminal at Folder" (or open Terminal and `cd` into it).
    - **Linux**: open a terminal and `cd` into the folder.
-3. **Install it:**
-   ```
-   pip install .
-   ```
-   (On macOS/Linux you may need `pip3` instead of `pip`.) This installs `yt-dlp` automatically and adds a `subgrabber` command you can run from any folder.
+3. **Install it.** Two options:
+
+   - **Recommended: [pipx](https://pipx.pypa.io/).** It installs the program in its own isolated environment while still giving you a `subgrabber` command usable from any folder — and it avoids the "externally-managed-environment" error that plain `pip` now throws on many Linux distros (Debian, Ubuntu, Fedora, Arch...).
+     ```
+     pipx install .
+     ```
+     If you don't have `pipx` yet: `python3 -m pip install --user pipx` (or on Arch: `sudo pacman -S python-pipx`, on macOS with Homebrew: `brew install pipx`), then `pipx ensurepath` and restart your terminal.
+
+   - **Alternative: plain pip** (works out of the box on Windows and macOS with the official Python installer):
+     ```
+     pip install .
+     ```
+     (You may need `pip3` instead of `pip`.) If this fails with an "externally-managed-environment" error, use the `pipx` method above instead.
+
+   Either way, this installs `yt-dlp` automatically and adds a `subgrabber` command you can run from any folder.
 
 ## Usage
 
