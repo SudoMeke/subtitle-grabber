@@ -1,5 +1,7 @@
 # subtitle-grabber
 
+[![Tests](https://github.com/SudoMeke/subtitle-grabber/actions/workflows/tests.yml/badge.svg)](https://github.com/SudoMeke/subtitle-grabber/actions/workflows/tests.yml)
+
 Download YouTube subtitles from a full-screen terminal interface — no browser extensions, no video download, no ads. Works on Windows, macOS, and Linux.
 
 Paste a YouTube link, pick a subtitle language from the list it shows you, choose where to save it (or accept the suggested default), and get a `.srt` file there.
@@ -34,6 +36,13 @@ subgrabber
 A full-screen interface opens in your terminal. Type the YouTube URL and press Enter, pick a subtitle language from the list shown (or press Enter to accept the suggested one), choose a destination folder (or press Enter for the default, `Downloads/subtitles`), and it downloads.
 
 Press `Esc` or `Ctrl+C` at any point to quit. The window needs to be at least 60 columns by 14 lines — if your terminal is smaller, resize it and try again.
+
+## Running the tests
+
+```
+python -m unittest discover -s tests
+```
+(On macOS/Linux you may need `python3` instead of `python`.)
 
 ## License
 
