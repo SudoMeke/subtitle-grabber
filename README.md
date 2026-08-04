@@ -6,13 +6,23 @@ Download YouTube subtitles from a full-screen terminal interface — no browser 
 
 Paste a YouTube link, pick a subtitle language from the list it shows you, choose where to save it (or accept the suggested default), and get a `.srt` file there.
 
-## Requirements
+## Install (no Python needed)
+
+Go to the [Releases page](https://github.com/SudoMeke/subtitle-grabber/releases/latest) and download the file for your system:
+
+- **Windows**: `subgrabber-windows.exe` — double-click it (or run it from `cmd`/PowerShell).
+- **macOS**: `subgrabber-macos` — since it isn't signed by an Apple-registered developer, the first time you'll need to right-click it → "Open" → "Open" again to get past Gatekeeper's warning (only needed once).
+- **Linux**: `subgrabber-linux` — make it executable first: `chmod +x subgrabber-linux`, then run it with `./subgrabber-linux`.
+
+That's it — nothing else to install. Skip to [Usage](#usage) below.
+
+## Alternative: install from source (requires Python)
+
+Useful if you want to read/modify the code, or if you'd rather have a `subgrabber` command on your PATH instead of a standalone file.
 
 - [Python 3](https://www.python.org/downloads/) (version 3.8 or newer).
 
-That's it — no `ffmpeg`, no extra system tools. This tool only downloads subtitle files, not video, so it doesn't need anything beyond Python itself.
-
-## Setup
+No `ffmpeg` or other system tools needed either way — this tool only downloads subtitle files, not video.
 
 1. **Download this project.** Either:
    - Click the green "Code" button on this repository's GitHub page → "Download ZIP", then extract it, **or**
@@ -39,9 +49,7 @@ That's it — no `ffmpeg`, no extra system tools. This tool only downloads subti
 
 ## Usage
 
-```
-subgrabber
-```
+Run the file you downloaded (`subgrabber-windows.exe`, `./subgrabber-macos`, or `./subgrabber-linux`), or just `subgrabber` if you installed it with pipx/pip.
 
 A full-screen interface opens in your terminal. Type the YouTube URL and press Enter, pick a subtitle language from the list shown (or press Enter to accept the suggested one), choose a destination folder (or press Enter for the default, `Downloads/subtitles`), and it downloads.
 

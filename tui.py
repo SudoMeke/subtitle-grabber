@@ -350,3 +350,7 @@ def run():
 
     for line in transcript:
         print(line)
+
+
+if __name__ == "__main__":
+    run()
